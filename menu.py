@@ -242,21 +242,29 @@ def consultar_dados_solcast():
 
             # Exibir informações básicas
             print("\n=== Dados retornados da API Solcast ===")
-            print(f"Latitude: {dados['latitude']}")
-            print(f"Longitude: {dados['longitude']}")
-            print(f"Endereço: {dados['endereco']}\n")
+            print(f"Latitude: {dados.get('latitude', 'N/A')}")
+            print(f"Longitude: {dados.get('longitude', 'N/A')}")
+            print(f"Endereço: {dados.get('endereco', 'N/A')}\n")
 
             # Exibir estimativas de energia
             print("=== Estimativa de Geração de Energia ===")
-            estimated_actuals = dados['solcast_data'].get('estimated_actuals', [])
+            estimated_actuals = dados.get('solcast_data', {}).get('estimated_actuals', [])
+            
             if not estimated_actuals:
                 print("Nenhuma estimativa de geração encontrada.")
             else:
+                total_energy_generated = 0  # Variável para acumular a energia total gerada
+                
                 for item in estimated_actuals:
                     pv_estimate = item.get('pv_estimate', 0)
                     period_end = item.get('period_end', "N/A")
                     period_duration = item.get('period', "N/A")
+                    total_energy_generated += pv_estimate  # Soma o valor de pv_estimate
                     print(f"Data/Hora: {period_end}, Estimativa: {pv_estimate} kW, Período: {period_duration}")
+
+                # Exibir a soma total da energia gerada
+                print("\n=== Energia Total Gerada ===")
+                print(f"Total: {total_energy_generated:.2f} kWh no período de {horas} horas.")
         else:
             # Em caso de erro, exibir a mensagem de erro retornada pelo backend
             print("\nErro ao consultar os dados:")
@@ -268,6 +276,7 @@ def consultar_dados_solcast():
         print(f"Erro na solicitação: {e}")
     except Exception as e:
         print(f"Erro inesperado: {e}")
+
 
 
 if __name__ == "__main__":

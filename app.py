@@ -179,21 +179,34 @@ def cadastrar_painel(current_user):
         cursor.execute("SELECT id_usuario FROM tb_usuario WHERE email = :1", (current_user,))
         id_usuario = cursor.fetchone()[0]
 
-        # Inserção dos dados do painel solar
+        # Variável para capturar o id_painel_solar gerado
+        id_painel_solar = cursor.var(int)
+
+        # Inserção dos dados do painel solar com RETURNING para capturar o id gerado
         cursor.execute(
-            "INSERT INTO tb_painel_solar (num_instalacao, quantidade, potencia_wp, altura_em_m, largura_em_m, orientacao, inclinacao, eficiencia_painel) \
-            VALUES (:1, :2, :3, :4, :5, :6, :7, :8)",
+            """
+            INSERT INTO tb_painel_solar 
+            (num_instalacao, quantidade, potencia_wp, altura_em_m, largura_em_m, orientacao, inclinacao, eficiencia_painel)
+            VALUES (:1, :2, :3, :4, :5, :6, :7, :8)
+            RETURNING id_painel_solar INTO :9
+            """,
             (data['num_instalacao'], data['quantidade'], data['potencia_wp'], data['altura_em_m'],
-             data['largura_em_m'], data['orientacao'], data['inclinacao'], data['eficiencia_painel'])
+             data['largura_em_m'], data['orientacao'], data['inclinacao'], data['eficiencia_painel'], id_painel_solar)
         )
         conn.commit()
-        return jsonify({'message': 'Painel cadastrado com sucesso!'}), 201
+
+        # Retornar mensagem de sucesso com o id do painel solar cadastrado
+        return jsonify({
+            'message': 'Painel cadastrado com sucesso!',
+            'id_painel_solar': id_painel_solar.getvalue()
+        }), 201
     except oracledb.DatabaseError as e:
         return jsonify({'message': 'Erro ao cadastrar painel!', 'error': str(e)}), 500
     finally:
         if conn:
             cursor.close()
             conn.close()
+
 
 
 # Cadastra Endereço
