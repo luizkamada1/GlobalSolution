@@ -9,8 +9,8 @@ def menu_principal():
         print("1. Registrar Usuário")
         print("2. Login de Usuário")
         print("3. Listar Usuários")
-        print("4. Cadastrar Painel Solar")
-        print("5. Cadastrar Instalação")
+        print("4. Cadastrar Instalação")
+        print("5. Cadastrar Painel Solar")
         print("6. Cadastrar Endereço")
         print("7. Consultar Dados Solcast")  # Nova opção
         print("8. Sair")
@@ -24,9 +24,9 @@ def menu_principal():
         elif opcao == "3":
             listar_usuarios()
         elif opcao == "4":
-            cadastrar_painel()
-        elif opcao == "5":
             cadastrar_instalacao()
+        elif opcao == "5":
+            cadastrar_painel()
         elif opcao == "6":
             cadastrar_endereco()
         elif opcao == "7":
