@@ -292,7 +292,7 @@ def dados_solcast(current_user):
             'tilt': inclinacao,
             'azimuth': orientacao,
             'hours': horas,
-            'api_key': 'mZ3sr4JBTYvV2jnTr2gqesdZ6cA1xtdB'
+            'api_key': 'JTFFB7_aG3H4hLva4QU1QW7aJJpMI64G'
         }
         solcast_response = requests.get(solcast_url, params=solcast_params, headers={'Accept': 'application/json'})
 

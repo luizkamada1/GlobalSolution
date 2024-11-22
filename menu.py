@@ -12,7 +12,7 @@ def menu_principal():
         print("4. Cadastrar Instalação")
         print("5. Cadastrar Painel Solar")
         print("6. Cadastrar Endereço")
-        print("7. Consultar Dados Solcast")  # Nova opção
+        print("7. Consultar Energia gerada")  
         print("8. Sair")
 
         opcao = input("Escolha uma opção: ")
@@ -233,8 +233,15 @@ def consultar_dados_solcast():
             "x-access-token": token
         }
 
+        # Log para debug
+        print(f"Enviando requisição para o endpoint com params: {params} e headers: {headers}")
+
         # Chamar o endpoint
         response = requests.get("http://127.0.0.1:5000/dados_solcast", params=params, headers=headers)
+
+        # Log da resposta
+        print(f"Status da resposta: {response.status_code}")
+        print(f"Resposta da API: {response.text}")
 
         # Processar a resposta
         if response.status_code == 200:
@@ -242,27 +249,24 @@ def consultar_dados_solcast():
 
             # Exibir informações básicas
             print("\n=== Dados retornados da API Solcast ===")
-            print(f"Latitude: {dados.get('latitude', 'N/A')}")
-            print(f"Longitude: {dados.get('longitude', 'N/A')}")
-            print(f"Endereço: {dados.get('endereco', 'N/A')}\n")
+            print(f"Latitude: {dados.get('latitude', 'Não disponível')}")
+            print(f"Longitude: {dados.get('longitude', 'Não disponível')}")
+            print(f"Endereço: {dados.get('endereco', 'Não disponível')}\n")
 
             # Exibir estimativas de energia
             print("=== Estimativa de Geração de Energia ===")
-            estimated_actuals = dados.get('solcast_data', {}).get('estimated_actuals', [])
-            
+            estimated_actuals = dados.get('estimated_actuals', [])
             if not estimated_actuals:
                 print("Nenhuma estimativa de geração encontrada.")
             else:
-                total_energy_generated = 0  # Variável para acumular a energia total gerada
-                
+                total_energy_generated = 0  # Variável para acumular energia total
                 for item in estimated_actuals:
                     pv_estimate = item.get('pv_estimate', 0)
+                    total_energy_generated += pv_estimate  # Soma a energia gerada
                     period_end = item.get('period_end', "N/A")
-                    period_duration = item.get('period', "N/A")
-                    total_energy_generated += pv_estimate  # Soma o valor de pv_estimate
-                    print(f"Data/Hora: {period_end}, Estimativa: {pv_estimate} kW, Período: {period_duration}")
-
-                # Exibir a soma total da energia gerada
+                    print(f"Data/Hora: {period_end}, Estimativa: {pv_estimate} kW")
+                
+                # Exibir o total de energia gerada
                 print("\n=== Energia Total Gerada ===")
                 print(f"Total: {total_energy_generated:.2f} kWh no período de {horas} horas.")
         else:
@@ -270,8 +274,8 @@ def consultar_dados_solcast():
             print("\nErro ao consultar os dados:")
             print(response.json().get("message", "Erro desconhecido."))
 
-    except ValueError:
-        print("Erro: O ID do painel solar e o número de horas devem ser valores numéricos.")
+    except ValueError as e:
+        print(f"Erro: O ID do painel solar e o número de horas devem ser valores numéricos. Detalhe: {e}")
     except requests.RequestException as e:
         print(f"Erro na solicitação: {e}")
     except Exception as e:
